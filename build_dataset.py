@@ -5,8 +5,11 @@
 # MIT License
 
 import os
+
 from PIL import Image
+
 import pandas as pd
+
 import numpy as np
 
 # Datos de labels
@@ -17,27 +20,27 @@ if not os.path.exists('generales.pickle'):
 
     csv_dtype = {
         "año": int,
-        "eleccion_tipo" : str,
-        "recuento_tipo" : str,
-        "padron_tipo" : str,
-        "distrito_id" : int,
-        "distrito_nombre" : str,
-        "seccionprovincial_id" : int,
-        "seccionprovincial_nombre" : str,
-        "seccion_id" : int,
-        "seccion_nombre" : str,
-        "circuito_id" : str,
-        "circuito_nombre" : str,
-        "mesa_id" : int,
-        "mesa_tipo" : str,
-        "mesa_electores" : int,
-        "cargo_id" : int,
-        "cargo_nombre" : str,
-        "agrupacion_id" : int,
-        "agrupacion_nombre" : str,
-        "lista_numero" : str,
-        "lista_nombre" : str,
-        "votos_tipo" : str,
+        "eleccion_tipo": str,
+        "recuento_tipo": str,
+        "padron_tipo": str,
+        "distrito_id": int,
+        "distrito_nombre": str,
+        "seccionprovincial_id": int,
+        "seccionprovincial_nombre": str,
+        "seccion_id": int,
+        "seccion_nombre": str,
+        "circuito_id": str,
+        "circuito_nombre": str,
+        "mesa_id": int,
+        "mesa_tipo": str,
+        "mesa_electores": int,
+        "cargo_id": int,
+        "cargo_nombre": str,
+        "agrupacion_id": int,
+        "agrupacion_nombre": str,
+        "lista_numero": str,
+        "lista_nombre": str,
+        "votos_tipo": str,
         "votos_cantidad": int
     }
 
@@ -48,6 +51,7 @@ else:
     df = pd.read_pickle('generales.pickle')
 
 # Importación
+
 
 def prepare_dataset(file_names, dataset_name):
     y_from_agrupacion = {
@@ -66,8 +70,9 @@ def prepare_dataset(file_names, dataset_name):
         'EN BLANCO': 10
     }
 
-    crop_tab_x = [1195, 1410]
-    crop_tab_y = [742, 815, 887, 957, 1029, 1099, 1170, 1241, 1314, 1386, 1455, 1538]
+    crop_tab_x = np.array([1195, 1410])
+    crop_tab_y = np.array(
+        [742, 815, 887, 957, 1029, 1099, 1170, 1241, 1314, 1386, 1455, 1538]) - 3
 
     crop_width = 220
     crop_height = 85
@@ -94,9 +99,9 @@ def prepare_dataset(file_names, dataset_name):
         mesa = int(file_name[5:10])
 
         datos_de_mesa = df[(df.distrito_id == distrito) &
-                        (df.seccion_id == seccion) &
-                        (df.mesa_id == mesa) &
-                        ((df.cargo_id == 1) | (df.cargo_id == 8))]
+                           (df.seccion_id == seccion) &
+                           (df.mesa_id == mesa) &
+                           ((df.cargo_id == 1) | (df.cargo_id == 8))]
 
         file_labels = np.zeros((12, 2), dtype='uint32')
 
@@ -117,24 +122,20 @@ def prepare_dataset(file_names, dataset_name):
 
         # Imágenes
 
-        file_image = Image.open(file_path).convert("L")
-
-        cropped_data = None
+        image = Image.open(file_path).convert("L")
 
         for y, crop_y in enumerate(crop_tab_y):
-            crop_y += 3 # Adjustment
-
             for x, crop_x in enumerate(crop_tab_x):
-                cropped_image = file_image.crop((crop_x,
+                cropped_image = image.crop((crop_x,
                                             crop_y,
                                             crop_x + crop_width,
                                             crop_y + crop_height))
 
                 # Test:
                 # cropped_image.save(f'{index}_out.png')
-                
-                image = 255 - np.array(cropped_image, dtype='uint8')
-                images.write(image.tobytes())
+
+                np_image = 255 - np.array(cropped_image, dtype='uint8')
+                images.write(np_image.tobytes())
 
                 label = file_labels[y][x]
                 labels.write(label.tobytes())
@@ -143,13 +144,14 @@ def prepare_dataset(file_names, dataset_name):
 
     return
 
+
 # `dir_path` contiene los telegramas bajados de https://mega.nz
 #
 # Formato de los archivos: aabbbcccccX.jpg
 # * aa: código de distrito
 # * bbb: código de sección
 # * ccccc: código de mesa
-# 
+#
 # Ejemplo: 0200100001X.jpg
 dir_path = '../../Datasets/2023 Generales Telegramas alineados/02'
 

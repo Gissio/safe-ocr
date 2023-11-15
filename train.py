@@ -233,7 +233,7 @@ model = SAFENetwork().to(device)
 # if not os.path.exists('model.pt'):
 #     model.apply(init_weights)
 # else:
-#     model = model.load_state_dict(torch.load('model.pt'))
+#     model.load_state_dict(torch.load('model.pt'))
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(),
