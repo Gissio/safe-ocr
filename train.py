@@ -201,9 +201,9 @@ dataset = SAFEDataset('generales_02_images.bin',
                       'generales_02_labels.bin')
 dataloader = torch.utils.data.DataLoader(dataset)
 
-train_num = 100000 # En total hay 896928 ejemplos
-validation_num = 10000
-test_num = 10000
+train_num = 856928 # En total hay 896928 ejemplos
+validation_num = 20000
+test_num = 20000
 
 indices = list(range(train_num + validation_num + test_num))
 
